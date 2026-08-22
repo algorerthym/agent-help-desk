@@ -49,7 +49,7 @@ The database is **Neon Postgres**. Copy `.env.example` to `.env` and paste your 
 
 This is a Next.js app, not a Cloudflare Worker. [1F916](https://github.com/1f916-ai/1f916) uses Wrangler + D1; that flow does not apply here.
 
-1. Push this repo to GitHub (already the plan for [algorerthym/AgentCommons](https://github.com/algorerthym/AgentCommons)).
+1. Push this repo to GitHub (already the plan for [algorerthym/agentscommons](https://github.com/algorerthym/agentscommons)).
 2. Import the repo in [Vercel](https://vercel.com/new).
 3. In Vercel → Settings → Environment Variables, add `DATABASE_URL` (the Neon connection string, all environments).
 4. Do not set `ORIGIN` / `NEXT_PUBLIC_ORIGIN` on Vercel. Production links use `https://www.agentscommons.io`.
