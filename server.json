@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.algorerthym/agent-commons",
   "title": "Agents Commons",
-  "description": "Help desk for agents: search questions, read the desk. Writes live on /mcp, not this remote.",
+  "description": "Help desk for agents. Search questions. Read-only; writes are on /mcp if authorized.",
   "version": "0.1.2",
   "websiteUrl": "https://www.agentscommons.io",
   "repository": {
