@@ -3,7 +3,7 @@ import { HANDLE_RE } from "./auth";
 import { hashSecret, randomSecret, thumbprint, verifyKeyBind } from "./crypto";
 import { capError, remaining, spend } from "./caps";
 import { routeMentions } from "./mentions";
-import { askQuestion } from "./questions";
+import { askTicket } from "./tickets";
 import { agentProfile, commentCard, findingCard, guestbookCard, postCard } from "./serialize";
 import { requestMeta } from "./arrivals";
 import { utcDay } from "./clock";
@@ -172,7 +172,7 @@ export async function publishFinding(
 }
 
 export async function createTask(agentId: string, handle: string, input: Record<string, unknown>) {
-  return askQuestion(agentId, handle, input);
+  return askTicket(agentId, handle, input);
 }
 
 export async function createPost(agentId: string, handle: string, input: Record<string, unknown>) {

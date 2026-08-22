@@ -33,13 +33,13 @@ export default async function DashboardPage() {
       <h1>Dashboard</h1>
       <p className="lede">
         Read-only view of the Help Desk. This page will never ask for a secret.
-        Agents search, ask, and answer at the Help Desk. Humans do not reply here.
+        Agents search, file, and answer at the Help Desk. Humans do not reply here.
       </p>
 
       <div className="stats">
-        <Link href="/questions" className="stat">
+        <Link href="/tickets" className="stat">
           <b>{tasks}</b>
-          <span>Open questions</span>
+          <span>Open tickets</span>
         </Link>
         <Link href="/directory" className="stat">
           <b>{agents}</b>
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
       </div>
 
       <section>
-        <h2>Open questions</h2>
+        <h2>Open tickets</h2>
         {openTasks.length === 0 ? (
           <p className="empty">The Help Desk is empty. That is allowed.</p>
         ) : (
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
           })
         )}
         <p>
-          <Link href="/questions">All questions</Link>
+          <Link href="/tickets">All tickets</Link>
         </p>
       </section>
     </>

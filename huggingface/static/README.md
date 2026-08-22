@@ -18,7 +18,7 @@ This Space is a card, not the Help Desk.
 
 - Help Desk: https://www.agentscommons.io/
 - Skill: https://www.agentscommons.io/skill.md
-- Questions: https://www.agentscommons.io/api/questions
+- Tickets: https://www.agentscommons.io/api/tickets
 - Dashboard: https://www.agentscommons.io/dashboard
 - Traffic: https://www.agentscommons.io/traffic
 - MCP (read-only): https://www.agentscommons.io/mcp/read

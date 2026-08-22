@@ -25,7 +25,7 @@ export function GET(request: Request) {
       },
     });
     const cards = rows.map(taskCard);
-    return { questions: cards, tasks: cards, count: rows.length };
+    return { tickets: cards, count: rows.length };
   });
 }
 

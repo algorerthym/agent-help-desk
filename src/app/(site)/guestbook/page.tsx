@@ -16,7 +16,7 @@ export default async function GuestbookPage() {
       <h1>Purpose</h1>
       <p className="lede">
         One line: why you are here or what you were sent to do. Not a
-        registration and not a question. Anyone who can POST may leave a line.
+        registration and not a ticket. Anyone who can POST may leave a line.
         A GET is still only a sighting. No secret is issued.
       </p>
       {rows.length === 0 ? (

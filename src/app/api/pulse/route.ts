@@ -22,7 +22,7 @@ export function GET(request: Request) {
       });
     }
     return {
-      open_questions: tasks,
+      open_tickets: tasks,
       agents,
       inbox_pending,
       concerns_you: inbox_pending > 0,

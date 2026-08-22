@@ -1,7 +1,7 @@
 import { prisma } from "./db";
 import { capError, spend } from "./caps";
 import { routeMentions } from "./mentions";
-import { commentCard, questionCard } from "./serialize";
+import { commentCard, ticketCard } from "./serialize";
 
 const ANSWER_MIN = 40;
 
@@ -14,7 +14,7 @@ function asTags(value: unknown) {
   return value.map((t) => String(t).toLowerCase().slice(0, 32)).filter(Boolean).slice(0, 8);
 }
 
-const questionInclude = {
+const ticketInclude = {
   agent: true,
   posts: {
     orderBy: { createdAt: "asc" as const },
@@ -23,7 +23,7 @@ const questionInclude = {
   },
 };
 
-export async function searchQuestions(input: {
+export async function searchTickets(input: {
   q?: string;
   tag?: string;
   status?: string;
@@ -54,17 +54,18 @@ export async function searchQuestions(input: {
     where,
     orderBy: { createdAt: "desc" },
     take: input.limit,
-    include: questionInclude,
+    include: ticketInclude,
   });
-  return { questions: rows.map(questionCard), count: rows.length };
+  const tickets = rows.map(ticketCard);
+  return { tickets, count: rows.length };
 }
 
-export async function getQuestion(id: string) {
+export async function getTicket(id: string) {
   const row = await prisma.task.findUnique({
     where: { id },
-    include: questionInclude,
+    include: ticketInclude,
   });
-  if (!row) throw Object.assign(new Error("Question not found"), { status: 404 });
+  if (!row) throw Object.assign(new Error("Ticket not found"), { status: 404 });
   const post = row.posts[0];
   let answers: ReturnType<typeof commentCard>[] = [];
   if (post) {
@@ -75,7 +76,7 @@ export async function getQuestion(id: string) {
     });
     answers = comments.map(commentCard);
   }
-  return { question: questionCard(row), answers };
+  return { ticket: ticketCard(row), answers };
 }
 
 async function canAsk(agentId: string): Promise<void> {
@@ -101,14 +102,14 @@ async function canAsk(agentId: string): Promise<void> {
   throw Object.assign(
     new Error(
       lastAsk
-        ? "Answer-to-ask: reply to someone else's open question (40+ characters) before you file another."
-        : "Answer-to-ask: the Help Desk has open questions. Answer one before you ask."
+        ? "Answer-to-ask: reply to someone else's open ticket (40+ characters) before you file another."
+        : "Answer-to-ask: the Help Desk has open tickets. Answer one before you file yours."
     ),
     { status: 403 }
   );
 }
 
-export async function askQuestion(agentId: string, handle: string, input: Record<string, unknown>) {
+export async function askTicket(agentId: string, handle: string, input: Record<string, unknown>) {
   const title = asString(input.title, 120);
   const body = asString(input.body, 8000);
   const tried = asString(input.tried, 2000) || null;
@@ -139,18 +140,18 @@ export async function askQuestion(agentId: string, handle: string, input: Record
   });
   const row = await prisma.task.findUniqueOrThrow({
     where: { id: task.id },
-    include: questionInclude,
+    include: ticketInclude,
   });
   await prisma.event.create({
-    data: { kind: "question", payload: JSON.stringify({ handle, title }) },
+    data: { kind: "ticket", payload: JSON.stringify({ handle, title }) },
   });
-  return questionCard(row);
+  return ticketCard(row);
 }
 
-export async function answerQuestion(
+export async function answerTicket(
   agentId: string,
   handle: string,
-  questionId: string,
+  ticketId: string,
   input: Record<string, unknown>
 ) {
   const body = asString(input.body, 8000);
@@ -158,17 +159,17 @@ export async function answerQuestion(
     throw Object.assign(new Error(`Answer must be at least ${ANSWER_MIN} characters`), { status: 400 });
   }
   const task = await prisma.task.findUnique({
-    where: { id: questionId },
+    where: { id: ticketId },
     include: { posts: { orderBy: { createdAt: "asc" }, take: 1 } },
   });
-  if (!task) throw Object.assign(new Error("Question not found"), { status: 404 });
+  if (!task) throw Object.assign(new Error("Ticket not found"), { status: 404 });
   if (task.agentId === agentId) {
-    throw Object.assign(new Error("Answer someone else's question. This is the Help Desk, not a notepad."), {
+    throw Object.assign(new Error("Answer someone else's ticket. This is the Help Desk, not a notepad."), {
       status: 400,
     });
   }
   if (task.status !== "open") {
-    throw Object.assign(new Error("This question is already marked answered"), { status: 409 });
+    throw Object.assign(new Error("This ticket is already marked answered"), { status: 409 });
   }
   let post = task.posts[0];
   if (!post) {
@@ -193,16 +194,16 @@ export async function answerQuestion(
   return commentCard(row);
 }
 
-export async function markQuestionAnswered(agentId: string, questionId: string) {
-  const task = await prisma.task.findUnique({ where: { id: questionId } });
-  if (!task) throw Object.assign(new Error("Question not found"), { status: 404 });
+export async function markTicketAnswered(agentId: string, ticketId: string) {
+  const task = await prisma.task.findUnique({ where: { id: ticketId } });
+  if (!task) throw Object.assign(new Error("Ticket not found"), { status: 404 });
   if (task.agentId !== agentId) {
-    throw Object.assign(new Error("Only the asker can mark a question answered"), { status: 403 });
+    throw Object.assign(new Error("Only the asker can mark a ticket answered"), { status: 403 });
   }
   const row = await prisma.task.update({
-    where: { id: questionId },
+    where: { id: ticketId },
     data: { status: "answered" },
-    include: questionInclude,
+    include: ticketInclude,
   });
-  return questionCard(row);
+  return ticketCard(row);
 }

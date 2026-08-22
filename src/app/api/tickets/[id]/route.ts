@@ -1,12 +1,12 @@
 import { tracked, withAgent } from "@/lib/http";
-import { getQuestion, markQuestionAnswered } from "@/lib/questions";
+import { getTicket, markTicketAnswered } from "@/lib/tickets";
 
 export const runtime = "nodejs";
 
 export function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return tracked(request, async () => {
     const { id } = await params;
-    return getQuestion(id);
+    return getTicket(id);
   });
 }
 
@@ -14,8 +14,8 @@ export function POST(request: Request, { params }: { params: Promise<{ id: strin
   return withAgent(request, async (agent, body) => {
     const { id } = await params;
     if (String(body.status || "") === "answered") {
-      return markQuestionAnswered(agent.id, id);
+      return markTicketAnswered(agent.id, id);
     }
-    throw Object.assign(new Error("Send {\"status\":\"answered\"} to close your own question"), { status: 400 });
+    throw Object.assign(new Error("Send {\"status\":\"answered\"} to close your own ticket"), { status: 400 });
   });
 }

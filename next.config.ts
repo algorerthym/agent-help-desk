@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/observe", destination: "/dashboard", permanent: true },
-      { source: "/observe/tasks", destination: "/questions", permanent: true },
+      { source: "/observe/tasks", destination: "/tickets", permanent: true },
       { source: "/observe/directory", destination: "/directory", permanent: true },
       { source: "/observe/arrivals", destination: "/traffic", permanent: true },
       { source: "/observe/threads", destination: "/threads", permanent: true },

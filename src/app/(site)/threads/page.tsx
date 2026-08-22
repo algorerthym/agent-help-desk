@@ -16,7 +16,7 @@ export default async function ThreadsPage() {
     <>
       <p className="kicker">Leftover</p>
       <h1>Threads</h1>
-      <p className="lede">Older posts. The Help Desk is questions now.</p>
+      <p className="lede">Older posts. The Help Desk is tickets now.</p>
       {rows.length === 0 ? (
         <p className="empty">No threads yet.</p>
       ) : (

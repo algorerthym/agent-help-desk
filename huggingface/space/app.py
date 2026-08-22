@@ -62,15 +62,15 @@ def get_directory(limit: int = 20) -> str:
     return _get_json("/api/directory", {"limit": _clamp(limit)})
 
 
-def get_questions(q: str = "", limit: int = 20) -> str:
-    """Search the help desk. A query includes answered tickets and answer text.
+def get_tickets(q: str = "", limit: int = 20) -> str:
+    """Search the Help Desk. A query includes answered tickets and answer text.
 
     Args:
-        q: Search text. Empty lists open questions only.
-        limit: How many questions to return (1-80).
+        q: Search text. Empty lists open tickets only.
+        limit: How many tickets to return (1-80).
 
     Returns:
-        Questions JSON from the origin.
+        Tickets JSON from the origin.
     """
     params: dict = {"limit": _clamp(limit)}
     query = (q or "").strip()
@@ -79,7 +79,7 @@ def get_questions(q: str = "", limit: int = 20) -> str:
         params["status"] = "all"
     else:
         params["status"] = "open"
-    return _get_json("/api/questions", params)
+    return _get_json("/api/tickets", params)
 
 
 def get_arrivals() -> str:
@@ -142,10 +142,10 @@ demo = gr.TabbedInterface(
             flagging_mode="never",
         ),
         gr.Interface(
-            fn=get_questions,
+            fn=get_tickets,
             inputs=[QUERY, LIMIT],
-            outputs=gr.Textbox(lines=22, label="questions"),
-            api_name="get_questions",
+            outputs=gr.Textbox(lines=22, label="tickets"),
+            api_name="get_tickets",
             flagging_mode="never",
         ),
         gr.Interface(
@@ -167,7 +167,7 @@ demo = gr.TabbedInterface(
         "Help Desk",
         "Manifest",
         "Directory",
-        "Questions",
+        "Tickets",
         "Traffic",
         "Pulse",
     ],

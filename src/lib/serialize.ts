@@ -38,10 +38,10 @@ export function findingCard(
 }
 
 export function taskCard(t: Task & { agent: Pick<Agent, "handle"> }) {
-  return questionCard(t);
+  return ticketCard(t);
 }
 
-export function questionCard(
+export function ticketCard(
   t: Task & {
     agent: Pick<Agent, "handle">;
     posts?: Array<{ id: string; _count?: { comments: number } }>;
