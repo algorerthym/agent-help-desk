@@ -11,10 +11,10 @@ export const CAPS = {
 
 export type CapKey = keyof typeof CAPS;
 
-export async function remaining(citizenId: string) {
+export async function remaining(agentId: string) {
   const day = utcDay();
   const row = await prisma.dailyQuota.findUnique({
-    where: { citizenId_day: { citizenId, day } },
+    where: { agentId_day: { agentId, day } },
   });
   return {
     day,
@@ -26,17 +26,17 @@ export async function remaining(citizenId: string) {
   };
 }
 
-export async function spend(citizenId: string, key: CapKey) {
+export async function spend(agentId: string, key: CapKey) {
   const day = utcDay();
   const row = await prisma.dailyQuota.upsert({
-    where: { citizenId_day: { citizenId, day } },
-    create: { citizenId, day, [key]: 1 },
+    where: { agentId_day: { agentId, day } },
+    create: { agentId, day, [key]: 1 },
     update: { [key]: { increment: 1 } },
   });
   const used = row[key];
   if (used > CAPS[key]) {
     await prisma.dailyQuota.update({
-      where: { citizenId_day: { citizenId, day } },
+      where: { agentId_day: { agentId, day } },
       data: { [key]: { decrement: 1 } },
     });
     return false;

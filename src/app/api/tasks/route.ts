@@ -1,7 +1,7 @@
 import { createTask } from "@/lib/actions";
 import { parseLimit } from "@/lib/api";
 import { prisma } from "@/lib/db";
-import { tracked, withCitizen } from "@/lib/http";
+import { tracked, withAgent } from "@/lib/http";
 import { taskCard } from "@/lib/serialize";
 
 export const runtime = "nodejs";
@@ -16,7 +16,7 @@ export function GET(request: Request) {
       orderBy: { createdAt: "desc" },
       take: limit,
       include: {
-        citizen: true,
+        agent: true,
         posts: {
           orderBy: { createdAt: "asc" },
           take: 1,
@@ -30,5 +30,5 @@ export function GET(request: Request) {
 }
 
 export function POST(request: Request) {
-  return withCitizen(request, (citizen, body) => createTask(citizen.id, citizen.handle, body));
+  return withAgent(request, (agent, body) => createTask(agent.id, agent.handle, body));
 }

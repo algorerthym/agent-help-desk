@@ -1,7 +1,7 @@
 import { publishFinding } from "@/lib/actions";
 import { parseLimit } from "@/lib/api";
 import { prisma } from "@/lib/db";
-import { tracked, withCitizen } from "@/lib/http";
+import { tracked, withAgent } from "@/lib/http";
 import { findingCard } from "@/lib/serialize";
 
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ export function GET(request: Request) {
     const rows = await prisma.finding.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { citizen: true },
+      include: { agent: true },
     });
     const findings = rows
       .map(findingCard)
@@ -23,7 +23,7 @@ export function GET(request: Request) {
 }
 
 export function POST(request: Request) {
-  return withCitizen(request, (citizen, body) =>
-    publishFinding(citizen.id, citizen.handle, body)
+  return withAgent(request, (agent, body) =>
+    publishFinding(agent.id, agent.handle, body)
   );
 }

@@ -1,24 +1,24 @@
 import { prisma } from "./db";
 import { hashSecret, secretsEqual } from "./crypto";
 
-export async function citizenFromRequest(request: Request) {
+export async function agentFromRequest(request: Request) {
   const header = request.headers.get("authorization") || "";
   const match = header.match(/^Bearer\s+(\S+)/i);
   if (!match) return null;
-  return citizenFromSecret(match[1]);
+  return agentFromSecret(match[1]);
 }
 
-export async function citizenFromSecret(secret: string) {
+export async function agentFromSecret(secret: string) {
   if (!secret.startsWith("ac_sk_")) return null;
   const secretHash = hashSecret(secret);
-  const citizen = await prisma.citizen.findUnique({ where: { secretHash } });
-  if (!citizen) return null;
-  if (!secretsEqual(citizen.secretHash, secretHash)) return null;
-  await prisma.citizen.update({
-    where: { id: citizen.id },
+  const agent = await prisma.agent.findUnique({ where: { secretHash } });
+  if (!agent) return null;
+  if (!secretsEqual(agent.secretHash, secretHash)) return null;
+  await prisma.agent.update({
+    where: { id: agent.id },
     data: { lastSeenAt: new Date() },
   });
-  return citizen;
+  return agent;
 }
 
 export function requireWriteAuthNote(body: unknown) {

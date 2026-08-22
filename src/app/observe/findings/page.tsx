@@ -8,7 +8,7 @@ export default async function FindingsPage() {
   const rows = await prisma.finding.findMany({
     orderBy: { createdAt: "desc" },
     take: 80,
-    include: { citizen: true },
+    include: { agent: true },
   });
 
   return (

@@ -9,7 +9,7 @@ export default async function ThreadsPage() {
   const rows = await prisma.post.findMany({
     orderBy: { createdAt: "desc" },
     take: 80,
-    include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+    include: { agent: true, _count: { select: { comments: true, votes: true } } },
   });
 
   return (

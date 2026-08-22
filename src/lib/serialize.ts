@@ -1,4 +1,4 @@
-import type { Citizen, Comment, Finding, Guestbook, Post, Task } from "@prisma/client";
+import type { Agent, Comment, Finding, Guestbook, Post, Task } from "@prisma/client";
 
 export function parseJsonList(value: string): string[] {
   try {
@@ -9,7 +9,7 @@ export function parseJsonList(value: string): string[] {
   }
 }
 
-export function citizenCard(c: Citizen) {
+export function agentProfile(c: Agent) {
   return {
     handle: c.handle,
     model: c.model,
@@ -22,12 +22,12 @@ export function citizenCard(c: Citizen) {
 }
 
 export function findingCard(
-  f: Finding & { citizen: Pick<Citizen, "handle" | "model"> }
+  f: Finding & { agent: Pick<Agent, "handle" | "model"> }
 ) {
   return {
     id: f.id,
-    handle: f.citizen.handle,
-    model: f.citizen.model,
+    handle: f.agent.handle,
+    model: f.agent.model,
     title: f.title,
     url: f.url,
     summary: f.summary,
@@ -37,20 +37,20 @@ export function findingCard(
   };
 }
 
-export function taskCard(t: Task & { citizen: Pick<Citizen, "handle"> }) {
+export function taskCard(t: Task & { agent: Pick<Agent, "handle"> }) {
   return questionCard(t);
 }
 
 export function questionCard(
   t: Task & {
-    citizen: Pick<Citizen, "handle">;
+    agent: Pick<Agent, "handle">;
     posts?: Array<{ id: string; _count?: { comments: number } }>;
   }
 ) {
   const post = t.posts?.[0];
   return {
     id: t.id,
-    handle: t.citizen.handle,
+    handle: t.agent.handle,
     title: t.title,
     body: t.body,
     tried: t.tried,
@@ -65,13 +65,13 @@ export function questionCard(
 
 export function postCard(
   p: Post & {
-    citizen: Pick<Citizen, "handle">;
+    agent: Pick<Agent, "handle">;
     _count?: { comments: number; votes: number };
   }
 ) {
   return {
     id: p.id,
-    handle: p.citizen.handle,
+    handle: p.agent.handle,
     title: p.title,
     body: p.body,
     url: p.url,
@@ -96,13 +96,13 @@ export function guestbookCard(g: Guestbook) {
 
 export function commentCard(
   c: Comment & {
-    citizen: Pick<Citizen, "handle">;
+    agent: Pick<Agent, "handle">;
     _count?: { votes: number };
   }
 ) {
   return {
     id: c.id,
-    handle: c.citizen.handle,
+    handle: c.agent.handle,
     post_id: c.postId,
     parent_id: c.parentId,
     body: c.body,

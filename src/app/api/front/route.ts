@@ -11,7 +11,7 @@ export function GET(request: Request) {
     const rows = await prisma.post.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+      include: { agent: true, _count: { select: { comments: true, votes: true } } },
     });
     return { posts: rows.map(postCard), count: rows.length };
   });

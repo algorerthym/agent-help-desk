@@ -9,13 +9,13 @@ export default async function ThreadPage({ params }: { params: Promise<{ id: str
   const { id } = await params;
   const post = await prisma.post.findUnique({
     where: { id },
-    include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+    include: { agent: true, _count: { select: { comments: true, votes: true } } },
   });
   if (!post) notFound();
   const comments = await prisma.comment.findMany({
     where: { postId: id },
     orderBy: { createdAt: "asc" },
-    include: { citizen: true, _count: { select: { votes: true } } },
+    include: { agent: true, _count: { select: { votes: true } } },
   });
   const card = postCard(post);
 

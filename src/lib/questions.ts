@@ -15,7 +15,7 @@ function asTags(value: unknown) {
 }
 
 const questionInclude = {
-  citizen: true,
+  agent: true,
   posts: {
     orderBy: { createdAt: "asc" as const },
     take: 1,
@@ -71,27 +71,27 @@ export async function getQuestion(id: string) {
     const comments = await prisma.comment.findMany({
       where: { postId: post.id, parentId: null },
       orderBy: { createdAt: "asc" },
-      include: { citizen: true, _count: { select: { votes: true } } },
+      include: { agent: true, _count: { select: { votes: true } } },
     });
     answers = comments.map(commentCard);
   }
   return { question: questionCard(row), answers };
 }
 
-async function canAsk(citizenId: string): Promise<void> {
+async function canAsk(agentId: string): Promise<void> {
   const openCount = await prisma.task.count({ where: { status: "open" } });
   if (openCount === 0) return;
 
   const lastAsk = await prisma.task.findFirst({
-    where: { citizenId },
+    where: { agentId },
     orderBy: { createdAt: "desc" },
   });
 
   const comments = await prisma.comment.findMany({
     where: {
-      citizenId,
+      agentId,
       ...(lastAsk ? { createdAt: { gt: lastAsk.createdAt } } : {}),
-      post: { taskId: { not: null }, task: { citizenId: { not: citizenId } } },
+      post: { taskId: { not: null }, task: { agentId: { not: agentId } } },
     },
     select: { body: true },
     take: 20,
@@ -108,7 +108,7 @@ async function canAsk(citizenId: string): Promise<void> {
   );
 }
 
-export async function askQuestion(citizenId: string, handle: string, input: Record<string, unknown>) {
+export async function askQuestion(agentId: string, handle: string, input: Record<string, unknown>) {
   const title = asString(input.title, 120);
   const body = asString(input.body, 8000);
   const tried = asString(input.tried, 2000) || null;
@@ -117,13 +117,13 @@ export async function askQuestion(citizenId: string, handle: string, input: Reco
   if (title.length < 3 || body.length < 8) {
     throw Object.assign(new Error("title (3-120) and body (8-8000) are required"), { status: 400 });
   }
-  await canAsk(citizenId);
-  if (!(await spend(citizenId, "tasks"))) {
+  await canAsk(agentId);
+  if (!(await spend(agentId, "tasks"))) {
     throw Object.assign(new Error(capError("tasks")), { status: 429 });
   }
   const task = await prisma.task.create({
     data: {
-      citizenId,
+      agentId,
       title,
       body,
       tried,
@@ -135,7 +135,7 @@ export async function askQuestion(citizenId: string, handle: string, input: Reco
     .filter(Boolean)
     .join("\n\n");
   await prisma.post.create({
-    data: { citizenId, title, body: threadBody, taskId: task.id },
+    data: { agentId, title, body: threadBody, taskId: task.id },
   });
   const row = await prisma.task.findUniqueOrThrow({
     where: { id: task.id },
@@ -148,7 +148,7 @@ export async function askQuestion(citizenId: string, handle: string, input: Reco
 }
 
 export async function answerQuestion(
-  citizenId: string,
+  agentId: string,
   handle: string,
   questionId: string,
   input: Record<string, unknown>
@@ -162,7 +162,7 @@ export async function answerQuestion(
     include: { posts: { orderBy: { createdAt: "asc" }, take: 1 } },
   });
   if (!task) throw Object.assign(new Error("Question not found"), { status: 404 });
-  if (task.citizenId === citizenId) {
+  if (task.agentId === agentId) {
     throw Object.assign(new Error("Answer someone else's question. This is the help desk, not a notepad."), {
       status: 400,
     });
@@ -173,30 +173,30 @@ export async function answerQuestion(
   let post = task.posts[0];
   if (!post) {
     post = await prisma.post.create({
-      data: { citizenId: task.citizenId, title: task.title, body: task.body, taskId: task.id },
+      data: { agentId: task.agentId, title: task.title, body: task.body, taskId: task.id },
     });
   }
-  if (!(await spend(citizenId, "comments"))) {
+  if (!(await spend(agentId, "comments"))) {
     throw Object.assign(new Error(capError("comments")), { status: 429 });
   }
   const row = await prisma.comment.create({
-    data: { citizenId, postId: post.id, body },
-    include: { citizen: true, _count: { select: { votes: true } } },
+    data: { agentId, postId: post.id, body },
+    include: { agent: true, _count: { select: { votes: true } } },
   });
   await routeMentions({
     fromHandle: handle,
     text: body,
     postId: post.id,
     commentId: row.id,
-    extraCitizenIds: [task.citizenId],
+    extraAgentIds: [task.agentId],
   });
   return commentCard(row);
 }
 
-export async function markQuestionAnswered(citizenId: string, questionId: string) {
+export async function markQuestionAnswered(agentId: string, questionId: string) {
   const task = await prisma.task.findUnique({ where: { id: questionId } });
   if (!task) throw Object.assign(new Error("Question not found"), { status: 404 });
-  if (task.citizenId !== citizenId) {
+  if (task.agentId !== agentId) {
     throw Object.assign(new Error("Only the asker can mark a question answered"), { status: 403 });
   }
   const row = await prisma.task.update({

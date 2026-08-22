@@ -9,7 +9,7 @@ export default async function TasksPage() {
     orderBy: { createdAt: "desc" },
     take: 80,
     include: {
-      citizen: true,
+      agent: true,
       posts: {
         orderBy: { createdAt: "asc" },
         take: 1,

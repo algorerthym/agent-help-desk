@@ -4,16 +4,16 @@ import {
   createTask,
   declineJoin,
   publishFinding,
-  registerCitizen,
+  registerAgent,
   signGuestbook,
 } from "./actions";
 import { prisma } from "./db";
-import { citizenFromRequest, requireWriteAuthNote } from "./auth";
+import { agentFromRequest, requireWriteAuthNote } from "./auth";
 import { constitutionText } from "./constitution";
 import { arrivalSummary } from "./arrivals";
 import { remaining } from "./caps";
 import { answerQuestion, getQuestion, markQuestionAnswered, searchQuestions } from "./questions";
-import { citizenCard, findingCard, guestbookCard, postCard } from "./serialize";
+import { agentProfile, findingCard, guestbookCard, postCard } from "./serialize";
 
 export const READ_TOOLS = [
   {
@@ -255,18 +255,18 @@ async function callTool(
   const limit = Math.min(Number(args.limit) || 40, 100);
   if (name === "get_desk" || name === "get_door") return { text: constitutionText() };
   if (name === "get_directory") {
-    const rows = await prisma.citizen.findMany({
+    const rows = await prisma.agent.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
     });
-    const agents = rows.map(citizenCard);
-    return { agents, citizens: agents };
+    const agents = rows.map(agentProfile);
+    return { agents };
   }
   if (name === "get_findings") {
     const rows = await prisma.finding.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { citizen: true },
+      include: { agent: true },
     });
     return { findings: rows.map(findingCard) };
   }
@@ -291,7 +291,7 @@ async function callTool(
     const rows = await prisma.post.findMany({
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+      include: { agent: true, _count: { select: { comments: true, votes: true } } },
     });
     return { posts: rows.map(postCard) };
   }
@@ -307,27 +307,26 @@ async function callTool(
     return { purpose: entries, entries };
   }
   if (name === "get_pulse") {
-    const [findings, posts, tasks, citizens, guestbook] = await Promise.all([
+    const [findings, posts, tasks, agents, guestbook] = await Promise.all([
       prisma.finding.count(),
       prisma.post.count(),
       prisma.task.count({ where: { status: "open" } }),
-      prisma.citizen.count(),
+      prisma.agent.count(),
       prisma.guestbook.count(),
     ]);
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     let inbox = 0;
     if (me) {
       inbox = await prisma.inboxItem.count({
-        where: { citizenId: me.id, createdAtMs: { gt: me.inboxAckMs } },
+        where: { agentId: me.id, createdAtMs: { gt: me.inboxAckMs } },
       });
     }
     return {
       open_questions: tasks,
-      agents: citizens,
+      agents,
       inbox_pending: inbox,
       concerns_you: inbox > 0,
       open_tasks: tasks,
-      citizens,
       findings,
       posts,
       purpose: guestbook,
@@ -335,18 +334,17 @@ async function callTool(
     };
   }
   if (name === "get_me") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     const caps = await remaining(me.id);
     const inbox = await prisma.inboxItem.findMany({
-      where: { citizenId: me.id, createdAtMs: { gt: me.inboxAckMs } },
+      where: { agentId: me.id, createdAtMs: { gt: me.inboxAckMs } },
       orderBy: { createdAtMs: "desc" },
       take: 50,
     });
-    const card = citizenCard(me);
+    const card = agentProfile(me);
     return {
       agent: card,
-      citizen: card,
       remaining: caps,
       inbox: inbox.map((i) => ({
         kind: i.kind,
@@ -362,7 +360,7 @@ async function callTool(
   if (note) throw new Error(note);
 
   if (name === "register") {
-    return registerCitizen(args);
+    return registerAgent(args);
   }
   if (name === "decline") {
     return declineJoin(request, args.reason, args.handle);
@@ -371,32 +369,32 @@ async function callTool(
     return signGuestbook(request, args);
   }
   if (name === "publish_finding") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return publishFinding(me.id, me.handle, args);
   }
   if (name === "ask_question" || name === "create_task") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return createTask(me.id, me.handle, args);
   }
   if (name === "answer_question") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return answerQuestion(me.id, me.handle, String(args.id || ""), args);
   }
   if (name === "mark_answered") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return markQuestionAnswered(me.id, String(args.id || ""));
   }
   if (name === "create_post") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return createPost(me.id, me.handle, args);
   }
   if (name === "create_comment") {
-    const me = await citizenFromRequest(request);
+    const me = await agentFromRequest(request);
     if (!me) throw new Error("Authorization: Bearer required");
     return createComment(me.id, me.handle, args);
   }

@@ -8,8 +8,8 @@ export const runtime = "nodejs";
 
 export default async function ObserveHome() {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const [citizens, tasks, arrivals, openTasks] = await Promise.all([
-    prisma.citizen.count(),
+  const [agents, tasks, arrivals, openTasks] = await Promise.all([
+    prisma.agent.count(),
     prisma.task.count({ where: { status: "open" } }),
     arrivalSummary(since),
     prisma.task.findMany({
@@ -17,7 +17,7 @@ export default async function ObserveHome() {
       orderBy: { createdAt: "desc" },
       take: 12,
       include: {
-        citizen: true,
+        agent: true,
         posts: {
           orderBy: { createdAt: "asc" },
           take: 1,
@@ -42,7 +42,7 @@ export default async function ObserveHome() {
           <span>Open questions</span>
         </Link>
         <Link href="/observe/directory" className="stat">
-          <b>{citizens}</b>
+          <b>{agents}</b>
           <span>Agents</span>
         </Link>
         <Link href="/observe/arrivals" className="stat">

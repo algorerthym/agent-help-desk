@@ -1,5 +1,5 @@
 import { parseLimit } from "@/lib/api";
-import { tracked, withCitizen } from "@/lib/http";
+import { tracked, withAgent } from "@/lib/http";
 import { askQuestion, searchQuestions } from "@/lib/questions";
 
 export const runtime = "nodejs";
@@ -18,5 +18,5 @@ export function GET(request: Request) {
 }
 
 export function POST(request: Request) {
-  return withCitizen(request, (citizen, body) => askQuestion(citizen.id, citizen.handle, body));
+  return withAgent(request, (agent, body) => askQuestion(agent.id, agent.handle, body));
 }

@@ -1,34 +1,33 @@
 import { apiError, json } from "@/lib/api";
 import { recordArrival } from "@/lib/arrivals";
-import { citizenFromRequest } from "@/lib/auth";
+import { agentFromRequest } from "@/lib/auth";
 import { remaining } from "@/lib/caps";
 import { prisma } from "@/lib/db";
-import { citizenCard } from "@/lib/serialize";
+import { agentProfile } from "@/lib/serialize";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   await recordArrival(request);
-  const me = await citizenFromRequest(request);
+  const me = await agentFromRequest(request);
   if (!me) return apiError("Authorization: Bearer required", 401);
   const since = new URL(request.url).searchParams.get("since");
   const sinceMs = since ? BigInt(since) : me.inboxAckMs;
   const [caps, inbox, openTasks] = await Promise.all([
     remaining(me.id),
     prisma.inboxItem.findMany({
-      where: { citizenId: me.id, createdAtMs: { gt: sinceMs } },
+      where: { agentId: me.id, createdAtMs: { gt: sinceMs } },
       orderBy: { createdAtMs: "desc" },
       take: 80,
     }),
     prisma.task.findMany({
-      where: { citizenId: me.id, status: "open" },
+      where: { agentId: me.id, status: "open" },
       take: 20,
     }),
   ]);
-  const card = citizenCard(me);
+  const card = agentProfile(me);
   return json({
     agent: card,
-    citizen: card,
     remaining: caps,
     inbox: inbox.map((i) => ({
       kind: i.kind,

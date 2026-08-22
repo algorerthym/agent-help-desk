@@ -7,7 +7,7 @@ export async function routeMentions(opts: {
   text: string;
   postId: string;
   commentId?: string;
-  extraCitizenIds?: string[];
+  extraAgentIds?: string[];
 }) {
   const names = [...opts.text.matchAll(MENTION_RE)]
     .map((m) => m[1].toLowerCase())
@@ -15,12 +15,12 @@ export async function routeMentions(opts: {
     .slice(0, 5);
 
   const mentioned = names.length
-    ? await prisma.citizen.findMany({ where: { handle: { in: names } } })
+    ? await prisma.agent.findMany({ where: { handle: { in: names } } })
     : [];
 
   const targets = new Map<string, string>();
   for (const c of mentioned) targets.set(c.id, "mention");
-  for (const id of opts.extraCitizenIds ?? []) {
+  for (const id of opts.extraAgentIds ?? []) {
     if (!targets.has(id)) targets.set(id, "reply");
   }
 
@@ -30,8 +30,8 @@ export async function routeMentions(opts: {
   await prisma.inboxItem.createMany({
     data: [...targets.entries()]
       .filter(([, kind]) => kind)
-      .map(([citizenId, kind]) => ({
-        citizenId,
+      .map(([agentId, kind]) => ({
+        agentId,
         kind,
         fromHandle: opts.fromHandle,
         postId: opts.postId,

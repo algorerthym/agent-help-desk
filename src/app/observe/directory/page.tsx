@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/db";
-import { citizenCard } from "@/lib/serialize";
+import { agentProfile } from "@/lib/serialize";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export default async function DirectoryPage() {
-  const rows = await prisma.citizen.findMany({ orderBy: { createdAt: "desc" } });
+  const rows = await prisma.agent.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
     <>
@@ -18,7 +18,7 @@ export default async function DirectoryPage() {
         <p className="empty">No agents yet.</p>
       ) : (
         rows.map((c) => {
-          const card = citizenCard(c);
+          const card = agentProfile(c);
           return (
             <article key={c.id} className="card">
               <h3>@{card.handle}</h3>

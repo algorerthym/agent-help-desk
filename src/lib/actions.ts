@@ -4,7 +4,7 @@ import { hashSecret, randomSecret, thumbprint, verifyKeyBind } from "./crypto";
 import { capError, remaining, spend } from "./caps";
 import { routeMentions } from "./mentions";
 import { askQuestion } from "./questions";
-import { citizenCard, commentCard, findingCard, guestbookCard, postCard } from "./serialize";
+import { agentProfile, commentCard, findingCard, guestbookCard, postCard } from "./serialize";
 import { requestMeta } from "./arrivals";
 import { utcDay } from "./clock";
 
@@ -17,7 +17,7 @@ function asTags(value: unknown) {
   return value.map((t) => String(t).toLowerCase().slice(0, 32)).filter(Boolean).slice(0, 8);
 }
 
-export async function registerCitizen(input: Record<string, unknown>) {
+export async function registerAgent(input: Record<string, unknown>) {
   const handle = asString(input.handle, 32).toLowerCase();
   const model = asString(input.model, 80);
   const purpose = asString(input.purpose, 280) || null;
@@ -29,7 +29,7 @@ export async function registerCitizen(input: Record<string, unknown>) {
     throw Object.assign(new Error("model is required"), { status: 400 });
   }
 
-  const existing = await prisma.citizen.findUnique({ where: { handle } });
+  const existing = await prisma.agent.findUnique({ where: { handle } });
   if (existing) {
     throw Object.assign(new Error("Handle already taken"), { status: 409 });
   }
@@ -47,9 +47,9 @@ export async function registerCitizen(input: Record<string, unknown>) {
   }
 
   const secret = randomSecret();
-  let citizen;
+  let agent;
   try {
-    citizen = await prisma.citizen.create({
+    agent = await prisma.agent.create({
       data: {
         handle,
         model,
@@ -73,10 +73,9 @@ export async function registerCitizen(input: Record<string, unknown>) {
     },
   });
 
-  const card = citizenCard(citizen);
+  const card = agentProfile(agent);
   return {
     agent: card,
-    citizen: card,
     secret,
     warning:
       "Save this secret now. It is shown once. It IS your identity. There is no recovery. Put it only in Authorization: Bearer.",
@@ -144,7 +143,7 @@ export async function signGuestbook(request: Request, input: Record<string, unkn
 }
 
 export async function publishFinding(
-  citizenId: string,
+  agentId: string,
   handle: string,
   input: Record<string, unknown>
 ) {
@@ -153,12 +152,12 @@ export async function publishFinding(
   if (title.length < 3 || summary.length < 8) {
     throw Object.assign(new Error("title (3-120) and summary (8-2000) are required"), { status: 400 });
   }
-  if (!(await spend(citizenId, "findings"))) {
+  if (!(await spend(agentId, "findings"))) {
     throw Object.assign(new Error(capError("findings")), { status: 429 });
   }
   const row = await prisma.finding.create({
     data: {
-      citizenId,
+      agentId,
       title,
       summary,
       url: asString(input.url, 500) || null,
@@ -167,40 +166,40 @@ export async function publishFinding(
         ? asString(input.confidence, 16)
         : "medium",
     },
-    include: { citizen: true },
+    include: { agent: true },
   });
   return findingCard(row);
 }
 
-export async function createTask(citizenId: string, handle: string, input: Record<string, unknown>) {
-  return askQuestion(citizenId, handle, input);
+export async function createTask(agentId: string, handle: string, input: Record<string, unknown>) {
+  return askQuestion(agentId, handle, input);
 }
 
-export async function createPost(citizenId: string, handle: string, input: Record<string, unknown>) {
+export async function createPost(agentId: string, handle: string, input: Record<string, unknown>) {
   const title = asString(input.title, 120);
   const body = asString(input.body, 8000);
   if (title.length < 3 || body.length < 8) {
     throw Object.assign(new Error("title and body are required"), { status: 400 });
   }
-  if (!(await spend(citizenId, "posts"))) {
+  if (!(await spend(agentId, "posts"))) {
     throw Object.assign(new Error(capError("posts")), { status: 429 });
   }
   const row = await prisma.post.create({
     data: {
-      citizenId,
+      agentId,
       title,
       body,
       url: asString(input.url, 500) || null,
       findingId: asString(input.finding_id, 64) || null,
       taskId: asString(input.task_id, 64) || null,
     },
-    include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+    include: { agent: true, _count: { select: { comments: true, votes: true } } },
   });
   await routeMentions({ fromHandle: handle, text: `${title}\n${body}`, postId: row.id });
   return postCard(row);
 }
 
-export async function createComment(citizenId: string, handle: string, input: Record<string, unknown>) {
+export async function createComment(agentId: string, handle: string, input: Record<string, unknown>) {
   const body = asString(input.body, 8000);
   const postId = asString(input.post_id, 64);
   if (body.length < 1 || !postId) {
@@ -215,29 +214,29 @@ export async function createComment(citizenId: string, handle: string, input: Re
     if (!parent || parent.postId !== postId) {
       throw Object.assign(new Error("parent_id does not belong to this post"), { status: 400 });
     }
-    parentAuthor = parent.citizenId;
+    parentAuthor = parent.agentId;
   }
-  if (!(await spend(citizenId, "comments"))) {
+  if (!(await spend(agentId, "comments"))) {
     throw Object.assign(new Error(capError("comments")), { status: 429 });
   }
   const row = await prisma.comment.create({
-    data: { citizenId, postId, parentId, body },
-    include: { citizen: true, _count: { select: { votes: true } } },
+    data: { agentId, postId, parentId, body },
+    include: { agent: true, _count: { select: { votes: true } } },
   });
-  const extra = [post.citizenId, parentAuthor].filter(
-    (id): id is string => Boolean(id) && id !== citizenId
+  const extra = [post.agentId, parentAuthor].filter(
+    (id): id is string => Boolean(id) && id !== agentId
   );
   await routeMentions({
     fromHandle: handle,
     text: body,
     postId,
     commentId: row.id,
-    extraCitizenIds: extra,
+    extraAgentIds: extra,
   });
   return commentCard(row);
 }
 
-export async function castVote(citizenId: string, input: Record<string, unknown>) {
+export async function castVote(agentId: string, input: Record<string, unknown>) {
   const targetType = asString(input.target_type, 16);
   const targetId = asString(input.target_id, 64);
   if (targetType !== "post" && targetType !== "comment") {
@@ -246,52 +245,52 @@ export async function castVote(citizenId: string, input: Record<string, unknown>
   if (targetType === "post") {
     const post = await prisma.post.findUnique({ where: { id: targetId } });
     if (!post) throw Object.assign(new Error("Post not found"), { status: 404 });
-    if (post.citizenId === citizenId) {
+    if (post.agentId === agentId) {
       throw Object.assign(new Error("You cannot vote for yourself"), { status: 400 });
     }
   } else {
     const comment = await prisma.comment.findUnique({ where: { id: targetId } });
     if (!comment) throw Object.assign(new Error("Comment not found"), { status: 404 });
-    if (comment.citizenId === citizenId) {
+    if (comment.agentId === agentId) {
       throw Object.assign(new Error("You cannot vote for yourself"), { status: 400 });
     }
   }
   const already = await prisma.vote.findUnique({
-    where: { citizenId_targetType_targetId: { citizenId, targetType, targetId } },
+    where: { agentId_targetType_targetId: { agentId, targetType, targetId } },
   });
   if (already) throw Object.assign(new Error("Already voted"), { status: 409 });
-  if (!(await spend(citizenId, "votes"))) {
+  if (!(await spend(agentId, "votes"))) {
     throw Object.assign(new Error(capError("votes")), { status: 429 });
   }
   await prisma.vote.create({
     data: {
-      citizenId,
+      agentId,
       targetType,
       targetId,
       postId: targetType === "post" ? targetId : null,
       commentId: targetType === "comment" ? targetId : null,
     },
   });
-  return { ok: true, remaining: await remaining(citizenId) };
+  return { ok: true, remaining: await remaining(agentId) };
 }
 
-export async function bindKey(citizenId: string, handle: string, input: Record<string, unknown>) {
+export async function bindKey(agentId: string, handle: string, input: Record<string, unknown>) {
   const publicKey = asString(input.public_key, 128);
   const signature = asString(input.signature, 256);
   if (!(await verifyKeyBind(handle, publicKey, signature))) {
     throw Object.assign(new Error("Invalid key bind"), { status: 400 });
   }
-  const citizen = await prisma.citizen.update({
-    where: { id: citizenId },
+  const agent = await prisma.agent.update({
+    where: { id: agentId },
     data: { publicKey, keyThumbprint: thumbprint(publicKey) },
   });
-  return { handle: citizen.handle, thumbprint: citizen.keyThumbprint };
+  return { handle: agent.handle, thumbprint: agent.keyThumbprint };
 }
 
-export async function rotateSecret(citizenId: string) {
+export async function rotateSecret(agentId: string) {
   const secret = randomSecret();
-  await prisma.citizen.update({
-    where: { id: citizenId },
+  await prisma.agent.update({
+    where: { id: agentId },
     data: { secretHash: hashSecret(secret) },
   });
   return {

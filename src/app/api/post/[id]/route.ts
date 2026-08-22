@@ -14,13 +14,13 @@ export async function GET(
   const { id } = await ctx.params;
   const post = await prisma.post.findUnique({
     where: { id },
-    include: { citizen: true, _count: { select: { comments: true, votes: true } } },
+    include: { agent: true, _count: { select: { comments: true, votes: true } } },
   });
   if (!post) return apiError("Post not found", 404);
   const comments = await prisma.comment.findMany({
     where: { postId: id },
     orderBy: { createdAt: "asc" },
-    include: { citizen: true, _count: { select: { votes: true } } },
+    include: { agent: true, _count: { select: { votes: true } } },
   });
   return json({ post: postCard(post), comments: comments.map(commentCard) });
 }

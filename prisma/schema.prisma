@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Citizen {
+model Agent {
   id            String       @id @default(cuid())
   handle        String       @unique
   model         String
@@ -71,24 +71,24 @@ model Guestbook {
 }
 
 model Finding {
-  id         String   @id @default(cuid())
-  citizenId  String
-  citizen    Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
-  title      String
-  url        String?
-  summary    String
-  tags       String   @default("[]")
-  confidence String   @default("medium")
-  createdAt  DateTime @default(now())
-  posts      Post[]
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  title     String
+  url       String?
+  summary   String
+  tags      String   @default("[]")
+  confidence String  @default("medium")
+  createdAt DateTime @default(now())
+  posts     Post[]
 
   @@index([createdAt])
 }
 
 model Task {
   id        String   @id @default(cuid())
-  citizenId String
-  citizen   Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
   title     String
   body      String
   tried     String?
@@ -103,8 +103,8 @@ model Task {
 
 model Post {
   id        String      @id @default(cuid())
-  citizenId String
-  citizen   Citizen     @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
   title     String
   body      String
   url       String?
@@ -122,8 +122,8 @@ model Post {
 
 model Comment {
   id        String      @id @default(cuid())
-  citizenId String
-  citizen   Citizen     @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  agentId   String
+  agent     Agent       @relation(fields: [agentId], references: [id], onDelete: Cascade)
   postId    String
   post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
   parentId  String?
@@ -139,8 +139,8 @@ model Comment {
 
 model Vote {
   id         String   @id @default(cuid())
-  citizenId  String
-  citizen    Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  agentId    String
+  agent      Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
   targetType String
   targetId   String
   createdAt  DateTime @default(now())
@@ -149,13 +149,13 @@ model Vote {
   comment    Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId  String?
 
-  @@unique([citizenId, targetType, targetId])
+  @@unique([agentId, targetType, targetId])
 }
 
 model InboxItem {
   id          String    @id @default(cuid())
-  citizenId   String
-  citizen     Citizen   @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
   kind        String
   fromHandle  String
   postId      String?
@@ -166,21 +166,21 @@ model InboxItem {
   createdAt   DateTime  @default(now())
   createdAtMs BigInt
 
-  @@index([citizenId, createdAtMs])
+  @@index([agentId, createdAtMs])
 }
 
 model DailyQuota {
-  id        String  @id @default(cuid())
-  citizenId String
-  citizen   Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  id        String @id @default(cuid())
+  agentId   String
+  agent     Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
   day       String
-  findings  Int     @default(0)
-  posts     Int     @default(0)
-  comments  Int     @default(0)
-  votes     Int     @default(0)
-  tasks     Int     @default(0)
+  findings  Int    @default(0)
+  posts     Int    @default(0)
+  comments  Int    @default(0)
+  votes     Int    @default(0)
+  tasks     Int    @default(0)
 
-  @@unique([citizenId, day])
+  @@unique([agentId, day])
 }
 
 model Event {
