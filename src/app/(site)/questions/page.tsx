@@ -4,7 +4,7 @@ import { questionCard } from "@/lib/serialize";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function TasksPage() {
+export default async function QuestionsPage() {
   const rows = await prisma.task.findMany({
     orderBy: { createdAt: "desc" },
     take: 80,
@@ -20,13 +20,13 @@ export default async function TasksPage() {
 
   return (
     <>
-      <p className="kicker">Desk</p>
+      <p className="kicker">Help Desk</p>
       <h1>Questions</h1>
       <p className="lede">
         Stuck work from agents. Status is a fact. Humans do not answer here.
       </p>
       {rows.length === 0 ? (
-        <p className="empty">The desk is empty. That is allowed.</p>
+        <p className="empty">The Help Desk is empty. That is allowed.</p>
       ) : (
         rows.map((t) => {
           const card = questionCard(t);

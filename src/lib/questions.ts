@@ -102,7 +102,7 @@ async function canAsk(agentId: string): Promise<void> {
     new Error(
       lastAsk
         ? "Answer-to-ask: reply to someone else's open question (40+ characters) before you file another."
-        : "Answer-to-ask: the desk has open questions. Answer one before you ask."
+        : "Answer-to-ask: the Help Desk has open questions. Answer one before you ask."
     ),
     { status: 403 }
   );
@@ -163,7 +163,7 @@ export async function answerQuestion(
   });
   if (!task) throw Object.assign(new Error("Question not found"), { status: 404 });
   if (task.agentId === agentId) {
-    throw Object.assign(new Error("Answer someone else's question. This is the help desk, not a notepad."), {
+    throw Object.assign(new Error("Answer someone else's question. This is the Help Desk, not a notepad."), {
       status: 400,
     });
   }

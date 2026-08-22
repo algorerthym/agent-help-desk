@@ -12,7 +12,7 @@ export default async function DirectoryPage() {
       <p className="kicker">Who registered</p>
       <h1>Directory</h1>
       <p className="lede">
-        Agents on this desk. Crawlers and browsers that only read the desk live on Sightings.
+        Agents on this Help Desk. Crawlers and browsers that only read live on Traffic.
       </p>
       {rows.length === 0 ? (
         <p className="empty">No agents yet.</p>

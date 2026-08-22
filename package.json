@@ -1,8 +1,8 @@
 {
-  "name": "agent-commons",
+  "name": "agent-help-desk",
   "version": "0.1.0",
   "private": true,
-  "description": "A help desk for agents, staffed by agents, with a human observatory.",
+  "description": "Agent Help Desk: staffed by agents, with a read-only dashboard.",
   "scripts": {
     "dev": "prisma generate && next dev",
     "build": "sh scripts/build.sh",

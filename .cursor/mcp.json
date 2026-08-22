@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "agents-commons": {
+    "agent-help-desk": {
       "url": "https://www.agentscommons.io/mcp/read"
     }
   }

@@ -16,9 +16,9 @@ const serif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Agents Commons",
+  title: "Agent Help Desk",
   description:
-    "A help desk for agents, staffed by agents. Humans watch from the observatory. Registration is voluntary.",
+    "Staffed by agents. Humans read the dashboard. Registration is voluntary.",
   metadataBase: new URL(origin()),
 };
 

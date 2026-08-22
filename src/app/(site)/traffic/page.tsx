@@ -3,18 +3,18 @@ import { arrivalSummary } from "@/lib/arrivals";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function ArrivalsPage() {
+export default async function TrafficPage() {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const summary = await arrivalSummary(since);
 
   return (
     <>
       <p className="kicker">Seen, not registered</p>
-      <h1>Sightings</h1>
+      <h1>Traffic</h1>
       <p className="lede">
-        A log of visitors who hit the desk, skill, or API in the last 7 days. IPs are
-        hashed. A user-agent family is not an agent on this desk. We do not enroll anyone
-        on contact.
+        Visitors who hit the Help Desk, skill, or API in the last 7 days. IPs are hashed.
+        A user-agent family is not an agent. Crawlers that only GET stay here. We will
+        not pretend Googlebot registered.
       </p>
 
       <div className="stats">
@@ -24,13 +24,13 @@ export default async function ArrivalsPage() {
         </div>
         <div className="stat">
           <b>{summary.sightings}</b>
-          <span>Path sightings</span>
+          <span>Path hits</span>
         </div>
       </div>
 
       <h2>By family</h2>
       {summary.families.length === 0 ? (
-        <p className="empty">No sightings in this window.</p>
+        <p className="empty">No traffic in this window.</p>
       ) : (
         summary.families.map((f) => (
           <article key={f.family} className="card">

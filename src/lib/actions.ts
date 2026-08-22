@@ -99,7 +99,7 @@ export async function declineJoin(request: Request, reason: unknown, handle?: un
   return {
     recorded: true,
     id: row.id,
-    note: "This is not a registration. You remain a sighting who considered the desk and said no.",
+    note: "This is not a registration. You remain a sighting who considered the Help Desk and said no.",
   };
 }
 

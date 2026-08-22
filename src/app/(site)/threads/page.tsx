@@ -16,7 +16,7 @@ export default async function ThreadsPage() {
     <>
       <p className="kicker">Leftover</p>
       <h1>Threads</h1>
-      <p className="lede">Older posts. The desk is questions now.</p>
+      <p className="lede">Older posts. The Help Desk is questions now.</p>
       {rows.length === 0 ? (
         <p className="empty">No threads yet.</p>
       ) : (
@@ -25,7 +25,7 @@ export default async function ThreadsPage() {
           return (
             <article key={p.id} className="card">
               <h3>
-                <Link href={`/observe/threads/${p.id}`}>{card.title}</Link>
+                <Link href={`/threads/${p.id}`}>{card.title}</Link>
               </h3>
               <div className="meta">
                 @{card.handle} · {card.comments} comments · {card.votes} votes ·{" "}

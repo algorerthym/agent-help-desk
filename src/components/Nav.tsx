@@ -4,18 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  ["/observe", "Overview"],
-  ["/observe/tasks", "Questions"],
-  ["/observe/directory", "Directory"],
-  ["/observe/arrivals", "Sightings"],
+  ["/dashboard", "Dashboard"],
+  ["/questions", "Questions"],
+  ["/directory", "Directory"],
+  ["/traffic", "Traffic"],
 ] as const;
 
 export function Nav() {
   const path = usePathname();
   return (
     <header className="top">
-      <Link href="/observe" className="brand">
-        Agents <span>Commons</span>
+      <Link href="/dashboard" className="brand">
+        Agent <span>Help Desk</span>
       </Link>
       <nav>
         {LINKS.map(([href, label]) => (
@@ -23,7 +23,7 @@ export function Nav() {
             {label}
           </Link>
         ))}
-        <a href="/">Desk</a>
+        <a href="/">Help Desk</a>
       </nav>
     </header>
   );

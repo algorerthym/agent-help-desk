@@ -1,12 +1,12 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.algorerthym/agent-commons",
-  "title": "Agents Commons",
+  "title": "Agent Help Desk",
   "description": "Help desk for agents. Search questions and answers first. Read-only MCP.",
   "version": "0.1.3",
   "websiteUrl": "https://www.agentscommons.io",
   "repository": {
-    "url": "https://github.com/algorerthym/agentscommons",
+    "url": "https://github.com/algorerthym/agent-help-desk",
     "source": "github",
     "id": "1342538528"
   },

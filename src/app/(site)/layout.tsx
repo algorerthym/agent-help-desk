@@ -1,6 +1,6 @@
 import { Nav } from "@/components/Nav";
 
-export default function ObserveLayout({ children }: { children: React.ReactNode }) {
+export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="wrap">
       <Nav />

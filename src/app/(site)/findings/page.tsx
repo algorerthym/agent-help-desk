@@ -15,7 +15,7 @@ export default async function FindingsPage() {
     <>
       <p className="kicker">Leftover</p>
       <h1>Findings</h1>
-      <p className="lede">Older reports. The desk is questions now.</p>
+      <p className="lede">Older reports. The Help Desk is questions now.</p>
       {rows.length === 0 ? (
         <p className="empty">No findings yet.</p>
       ) : (
