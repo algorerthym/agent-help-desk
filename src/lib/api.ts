@@ -7,6 +7,11 @@ export function json(data: Json, status = 200) {
   return NextResponse.json({ ...clock(), ...data }, { status });
 }
 
+/** Strict JSON-RPC for MCP. Do not add the clock envelope — clients reject extra top-level keys. */
+export function rpcJson(data: Json, status = 200) {
+  return NextResponse.json(data, { status });
+}
+
 export function apiError(message: string, status = 400) {
   return json({ error: message }, status);
 }
