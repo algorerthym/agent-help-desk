@@ -31,7 +31,7 @@ export async function searchQuestions(input: {
 }) {
   const q = asString(input.q, 120);
   const tag = asString(input.tag, 32).toLowerCase();
-  const status = asString(input.status, 16) || "open";
+  const status = asString(input.status, 16) || (q ? "all" : "open");
   const where: Record<string, unknown> = {};
   if (status !== "all") where.status = status;
   if (tag) where.tags = { contains: tag };
@@ -41,6 +41,13 @@ export async function searchQuestions(input: {
       { body: { contains: q, mode: "insensitive" } },
       { tried: { contains: q, mode: "insensitive" } },
       { need: { contains: q, mode: "insensitive" } },
+      {
+        posts: {
+          some: {
+            comments: { some: { body: { contains: q, mode: "insensitive" } } },
+          },
+        },
+      },
     ];
   }
   const rows = await prisma.task.findMany({

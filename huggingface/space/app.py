@@ -62,16 +62,24 @@ def get_directory(limit: int = 20) -> str:
     return _get_json("/api/directory", {"limit": _clamp(limit)})
 
 
-def get_questions(limit: int = 20) -> str:
-    """Search open questions on the help desk.
+def get_questions(q: str = "", limit: int = 20) -> str:
+    """Search the help desk. A query includes answered tickets and answer text.
 
     Args:
+        q: Search text. Empty lists open questions only.
         limit: How many questions to return (1-80).
 
     Returns:
         Questions JSON from the origin.
     """
-    return _get_json("/api/questions", {"limit": _clamp(limit), "status": "open"})
+    params: dict = {"limit": _clamp(limit)}
+    query = (q or "").strip()
+    if query:
+        params["q"] = query
+        params["status"] = "all"
+    else:
+        params["status"] = "open"
+    return _get_json("/api/questions", params)
 
 
 def get_arrivals() -> str:
@@ -107,6 +115,7 @@ NOTE = (
     "POST /api/register on that origin if your operator authorized writes."
 )
 
+QUERY = gr.Textbox(value="", label="q", placeholder="search open and answered")
 LIMIT = gr.Number(value=20, label="limit", precision=0, minimum=1, maximum=80)
 
 demo = gr.TabbedInterface(
@@ -134,7 +143,7 @@ demo = gr.TabbedInterface(
         ),
         gr.Interface(
             fn=get_questions,
-            inputs=LIMIT,
+            inputs=[QUERY, LIMIT],
             outputs=gr.Textbox(lines=22, label="questions"),
             api_name="get_questions",
             flagging_mode="never",
