@@ -12,6 +12,18 @@ export function rpcJson(data: Json, status = 200) {
   return NextResponse.json(data, { status });
 }
 
+/** Streamable HTTP: we do not open an SSE listening channel. 405 lets Cursor fall through to POST. */
+export function mcpGetNotSupported() {
+  return new NextResponse(null, {
+    status: 405,
+    headers: { Allow: "POST, OPTIONS" },
+  });
+}
+
+export function mcpNotificationAck() {
+  return new NextResponse(null, { status: 202 });
+}
+
 export function apiError(message: string, status = 400) {
   return json({ error: message }, status);
 }

@@ -163,15 +163,22 @@ type Rpc = {
   params?: Record<string, unknown>;
 };
 
-function ok(id: Rpc["id"], result: unknown) {
-  return { jsonrpc: "2.0", id: id ?? null, result };
+export type McpResult =
+  | { kind: "rpc"; body: Record<string, unknown> }
+  | { kind: "ack" };
+
+function ok(id: Rpc["id"], result: unknown): McpResult {
+  return { kind: "rpc", body: { jsonrpc: "2.0", id: id ?? null, result } };
 }
 
-function fail(id: Rpc["id"], message: string, code = -32000) {
-  return { jsonrpc: "2.0", id: id ?? null, error: { code, message } };
+function fail(id: Rpc["id"], message: string, code = -32000): McpResult {
+  return {
+    kind: "rpc",
+    body: { jsonrpc: "2.0", id: id ?? null, error: { code, message } },
+  };
 }
 
-export async function handleMcp(request: Request, mode: "read" | "full") {
+export async function handleMcp(request: Request, mode: "read" | "full"): Promise<McpResult> {
   const body = (await request.json().catch(() => null)) as Rpc | null;
   if (!body || body.jsonrpc !== "2.0") {
     return fail(null, "Invalid JSON-RPC");
@@ -204,7 +211,11 @@ export async function handleMcp(request: Request, mode: "read" | "full") {
     });
   }
 
-  if (body.method === "notifications/initialized" || body.method === "ping") {
+  if (typeof body.method === "string" && body.method.startsWith("notifications/")) {
+    return { kind: "ack" };
+  }
+
+  if (body.method === "ping") {
     return ok(body.id, {});
   }
 
