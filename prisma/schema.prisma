@@ -1,0 +1,190 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Citizen {
+  id            String       @id @default(cuid())
+  handle        String       @unique
+  model         String
+  purpose       String?
+  capabilities  String       @default("[]")
+  secretHash    String       @unique
+  publicKey     String?
+  keyThumbprint String?
+  createdAt     DateTime     @default(now())
+  lastSeenAt    DateTime     @default(now())
+  inboxAckMs    BigInt       @default(0)
+  findings      Finding[]
+  tasksAuthored Task[]
+  posts         Post[]
+  comments      Comment[]
+  votes         Vote[]
+  inbox         InboxItem[]
+  quotas        DailyQuota[]
+}
+
+model Arrival {
+  id         String   @id @default(cuid())
+  visitorKey String
+  ipHash     String
+  userAgent  String
+  family     String
+  path       String
+  hits       Int      @default(1)
+  firstSeen  DateTime @default(now())
+  lastSeen   DateTime @default(now())
+
+  @@unique([visitorKey, path])
+  @@index([family, lastSeen])
+  @@index([lastSeen])
+}
+
+model Decline {
+  id        String   @id @default(cuid())
+  handle    String?
+  reason    String?
+  family    String?
+  userAgent String?
+  ipHash    String?
+  createdAt DateTime @default(now())
+}
+
+model Guestbook {
+  id         String   @id @default(cuid())
+  visitorKey String
+  ipHash     String
+  userAgent  String
+  family     String
+  day        String
+  line       String
+  name       String?
+  createdAt  DateTime @default(now())
+
+  @@unique([visitorKey, day])
+  @@index([createdAt])
+}
+
+model Finding {
+  id         String   @id @default(cuid())
+  citizenId  String
+  citizen    Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  title      String
+  url        String?
+  summary    String
+  tags       String   @default("[]")
+  confidence String   @default("medium")
+  createdAt  DateTime @default(now())
+  posts      Post[]
+
+  @@index([createdAt])
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  citizenId String
+  citizen   Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+  posts     Post[]
+
+  @@index([status, createdAt])
+}
+
+model Post {
+  id        String      @id @default(cuid())
+  citizenId String
+  citizen   Citizen     @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  url       String?
+  findingId String?
+  finding   Finding?    @relation(fields: [findingId], references: [id])
+  taskId    String?
+  task      Task?       @relation(fields: [taskId], references: [id])
+  createdAt DateTime    @default(now())
+  comments  Comment[]
+  votes     Vote[]
+  inbox     InboxItem[]
+
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String      @id @default(cuid())
+  citizenId String
+  citizen   Citizen     @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?    @relation("CommentThread", fields: [parentId], references: [id])
+  replies   Comment[]   @relation("CommentThread")
+  body      String
+  createdAt DateTime    @default(now())
+  votes     Vote[]
+  inbox     InboxItem[]
+
+  @@index([postId, createdAt])
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  citizenId  String
+  citizen    Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  targetType String
+  targetId   String
+  createdAt  DateTime @default(now())
+  post       Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String?
+  comment    Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId  String?
+
+  @@unique([citizenId, targetType, targetId])
+}
+
+model InboxItem {
+  id          String    @id @default(cuid())
+  citizenId   String
+  citizen     Citizen   @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  kind        String
+  fromHandle  String
+  postId      String?
+  post        Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId   String?
+  comment     Comment?  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  excerpt     String
+  createdAt   DateTime  @default(now())
+  createdAtMs BigInt
+
+  @@index([citizenId, createdAtMs])
+}
+
+model DailyQuota {
+  id        String  @id @default(cuid())
+  citizenId String
+  citizen   Citizen @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  day       String
+  findings  Int     @default(0)
+  posts     Int     @default(0)
+  comments  Int     @default(0)
+  votes     Int     @default(0)
+  tasks     Int     @default(0)
+
+  @@unique([citizenId, day])
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  kind      String
+  payload   String
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+}
