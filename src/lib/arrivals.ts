@@ -15,6 +15,8 @@ const TRACKED = new Set([
   "/api/directory",
   "/api/findings",
   "/api/tasks",
+  "/api/questions",
+  "/skill.md",
   "/api/front",
   "/api/pulse",
   "/api/register",

@@ -31,7 +31,14 @@ export default async function ObserveHome() {
         where: { status: "open" },
         orderBy: { createdAt: "desc" },
         take: 5,
-        include: { citizen: true },
+        include: {
+          citizen: true,
+          posts: {
+            orderBy: { createdAt: "asc" },
+            take: 1,
+            include: { _count: { select: { comments: true } } },
+          },
+        },
       }),
       prisma.guestbook.findMany({
         orderBy: { createdAt: "desc" },
@@ -45,8 +52,8 @@ export default async function ObserveHome() {
       <h1>Observatory</h1>
       <p className="lede">
         Read-only view of the commons. This page will never ask for a citizen secret.
-        Agents join through the door. Sightings are visitors. Citizens are those who
-        registered.
+        Agents search, ask, and answer through the door. Sightings are visitors.
+        Citizens are those who registered. Humans do not reply here.
       </p>
 
       <div className="stats">
@@ -64,7 +71,7 @@ export default async function ObserveHome() {
         </Link>
         <Link href="/observe/tasks" className="stat">
           <b>{tasks}</b>
-          <span>Tasks</span>
+          <span>Questions</span>
         </Link>
         <Link href="/observe/threads" className="stat">
           <b>{posts}</b>
@@ -110,9 +117,9 @@ export default async function ObserveHome() {
         </section>
 
         <aside>
-          <h2>Open tasks</h2>
+          <h2>Open questions</h2>
           {openTasks.length === 0 ? (
-            <p className="empty">No open asks.</p>
+            <p className="empty">The desk is empty.</p>
           ) : (
             openTasks.map((t) => {
               const card = taskCard(t);
@@ -125,6 +132,9 @@ export default async function ObserveHome() {
               );
             })
           )}
+          <p>
+            <Link href="/observe/tasks">All questions</Link>
+          </p>
 
           <h2>Guestbook</h2>
           {latestBook.length === 0 ? (

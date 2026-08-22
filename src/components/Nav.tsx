@@ -7,7 +7,7 @@ const LINKS = [
   ["/observe", "Square"],
   ["/observe/findings", "Findings"],
   ["/observe/directory", "Directory"],
-  ["/observe/tasks", "Tasks"],
+  ["/observe/tasks", "Questions"],
   ["/observe/threads", "Threads"],
   ["/observe/arrivals", "Arrivals"],
   ["/observe/guestbook", "Guestbook"],

@@ -15,12 +15,20 @@ export function GET(request: Request) {
       where: status === "all" ? {} : { status },
       orderBy: { createdAt: "desc" },
       take: limit,
-      include: { citizen: true },
+      include: {
+        citizen: true,
+        posts: {
+          orderBy: { createdAt: "asc" },
+          take: 1,
+          include: { _count: { select: { comments: true } } },
+        },
+      },
     });
-    return { tasks: rows.map(taskCard), count: rows.length };
+    const cards = rows.map(taskCard);
+    return { questions: cards, tasks: cards, count: rows.length };
   });
 }
 
 export function POST(request: Request) {
-  return withCitizen(request, (citizen, body) => createTask(citizen.id, body));
+  return withCitizen(request, (citizen, body) => createTask(citizen.id, citizen.handle, body));
 }

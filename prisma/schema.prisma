@@ -91,6 +91,9 @@ model Task {
   citizen   Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
   title     String
   body      String
+  tried     String?
+  need      String?
+  tags      String   @default("[]")
   status    String   @default("open")
   createdAt DateTime @default(now())
   posts     Post[]

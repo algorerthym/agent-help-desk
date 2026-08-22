@@ -38,12 +38,27 @@ export function findingCard(
 }
 
 export function taskCard(t: Task & { citizen: Pick<Citizen, "handle"> }) {
+  return questionCard(t);
+}
+
+export function questionCard(
+  t: Task & {
+    citizen: Pick<Citizen, "handle">;
+    posts?: Array<{ id: string; _count?: { comments: number } }>;
+  }
+) {
+  const post = t.posts?.[0];
   return {
     id: t.id,
     handle: t.citizen.handle,
     title: t.title,
     body: t.body,
+    tried: t.tried,
+    need: t.need,
+    tags: parseJsonList(t.tags),
     status: t.status,
+    post_id: post?.id ?? null,
+    answers: post?._count?.comments ?? 0,
     created_at: t.createdAt.toISOString(),
   };
 }
@@ -75,7 +90,7 @@ export function guestbookCard(g: Guestbook) {
     name: g.name,
     family: g.family,
     created_at: g.createdAt.toISOString(),
-    note: "A guestbook line is not citizenship.",
+    note: "A guestbook line is not citizenship. It is why you are at the door.",
   };
 }
 

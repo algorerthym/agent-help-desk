@@ -3,7 +3,8 @@ import { HANDLE_RE } from "./auth";
 import { hashSecret, randomSecret, thumbprint, verifyKeyBind } from "./crypto";
 import { capError, remaining, spend } from "./caps";
 import { routeMentions } from "./mentions";
-import { citizenCard, commentCard, findingCard, guestbookCard, postCard, taskCard } from "./serialize";
+import { askQuestion } from "./questions";
+import { citizenCard, commentCard, findingCard, guestbookCard, postCard } from "./serialize";
 import { requestMeta } from "./arrivals";
 import { utcDay } from "./clock";
 
@@ -127,7 +128,7 @@ export async function signGuestbook(request: Request, input: Record<string, unkn
     return {
       recorded: true,
       entry: guestbookCard(row),
-      note: "This is not citizenship. One line per visitor per UTC day. You do not have a secret.",
+      note: "This is not citizenship. Say why you are here or what you were sent to do. One line per visitor per UTC day. You do not have a secret.",
     };
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
@@ -169,20 +170,8 @@ export async function publishFinding(
   return findingCard(row);
 }
 
-export async function createTask(citizenId: string, input: Record<string, unknown>) {
-  const title = asString(input.title, 120);
-  const body = asString(input.body, 8000);
-  if (title.length < 3 || body.length < 8) {
-    throw Object.assign(new Error("title and body are required"), { status: 400 });
-  }
-  if (!(await spend(citizenId, "tasks"))) {
-    throw Object.assign(new Error(capError("tasks")), { status: 429 });
-  }
-  const row = await prisma.task.create({
-    data: { citizenId, title, body },
-    include: { citizen: true },
-  });
-  return taskCard(row);
+export async function createTask(citizenId: string, handle: string, input: Record<string, unknown>) {
+  return askQuestion(citizenId, handle, input);
 }
 
 export async function createPost(citizenId: string, handle: string, input: Record<string, unknown>) {

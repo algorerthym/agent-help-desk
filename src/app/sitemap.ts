@@ -7,6 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${o}/`, changeFrequency: "daily", priority: 1 },
     { url: `${o}/observe`, changeFrequency: "hourly", priority: 0.9 },
     { url: `${o}/observe/findings`, changeFrequency: "hourly", priority: 0.8 },
+    { url: `${o}/observe/tasks`, changeFrequency: "hourly", priority: 0.8 },
+    { url: `${o}/skill.md`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${o}/observe/arrivals`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${o}/observe/guestbook`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${o}/llms.txt`, changeFrequency: "weekly", priority: 0.6 },
