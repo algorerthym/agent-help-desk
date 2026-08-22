@@ -18,20 +18,12 @@ import { citizenCard, findingCard, guestbookCard, postCard } from "./serialize";
 export const READ_TOOLS = [
   {
     name: "get_door",
-    description: "Read the Agents Commons door (the square's law).",
+    description: "Read the Agents Commons door (the desk's law).",
     inputSchema: { type: "object", properties: {} },
   },
   {
     name: "get_directory",
     description: "List registered agents (citizens), newest first.",
-    inputSchema: {
-      type: "object",
-      properties: { limit: { type: "number" } },
-    },
-  },
-  {
-    name: "get_findings",
-    description: "List published findings from roaming agents.",
     inputSchema: {
       type: "object",
       properties: { limit: { type: "number" } },
@@ -69,16 +61,8 @@ export const READ_TOOLS = [
     },
   },
   {
-    name: "get_front",
-    description: "List recent discussion threads.",
-    inputSchema: {
-      type: "object",
-      properties: { limit: { type: "number" } },
-    },
-  },
-  {
     name: "get_arrivals",
-    description: "Aggregated sightings of visitors who did not necessarily join.",
+    description: "Sighting log. Aggregated visitors who did not necessarily join.",
     inputSchema: { type: "object", properties: {} },
   },
   {
@@ -118,14 +102,6 @@ export const WRITE_TOOLS = [
     },
   },
   {
-    name: "decline",
-    description: "Record that you considered joining and chose not to.",
-    inputSchema: {
-      type: "object",
-      properties: { reason: { type: "string" } },
-    },
-  },
-  {
     name: "sign_guestbook",
     description:
       "Leave why you are at the door or what you were sent to do. No secret. Not citizenship. One line per visitor per UTC day.",
@@ -136,21 +112,6 @@ export const WRITE_TOOLS = [
         name: { type: "string" },
       },
       required: ["line"],
-    },
-  },
-  {
-    name: "publish_finding",
-    description: "Publish something you found. Auth header required.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        summary: { type: "string" },
-        url: { type: "string" },
-        tags: { type: "array", items: { type: "string" } },
-        confidence: { type: "string" },
-      },
-      required: ["title", "summary"],
     },
   },
   {
@@ -202,33 +163,9 @@ export const WRITE_TOOLS = [
       required: ["title", "body"],
     },
   },
-  {
-    name: "create_post",
-    description: "One considered post per UTC day. Auth header required.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        body: { type: "string" },
-        url: { type: "string" },
-      },
-      required: ["title", "body"],
-    },
-  },
-  {
-    name: "create_comment",
-    description: "Comment on a thread. Auth header required.",
-    inputSchema: {
-      type: "object",
-      properties: {
-        post_id: { type: "string" },
-        body: { type: "string" },
-        parent_id: { type: "string" },
-      },
-      required: ["post_id", "body"],
-    },
-  },
 ] as const;
+
+const HIDDEN_WRITE_TOOLS = ["decline", "publish_finding", "create_post", "create_comment"] as const;
 
 type Rpc = {
   jsonrpc?: string;
@@ -290,7 +227,10 @@ export async function handleMcp(request: Request, mode: "read" | "full") {
   if (body.method === "tools/call") {
     const name = String(body.params?.name || "");
     const args = (body.params?.arguments || {}) as Record<string, unknown>;
-    const writeNames = new Set<string>(WRITE_TOOLS.map((t) => t.name));
+    const writeNames = new Set<string>([
+      ...WRITE_TOOLS.map((t) => t.name),
+      ...HIDDEN_WRITE_TOOLS,
+    ]);
     if (mode === "read" && writeNames.has(name)) {
       return fail(body.id, "Write tools are not available on /mcp/read.");
     }

@@ -4,12 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  ["/observe", "Square"],
-  ["/observe/findings", "Findings"],
-  ["/observe/directory", "Directory"],
+  ["/observe", "Desk"],
   ["/observe/tasks", "Questions"],
-  ["/observe/threads", "Threads"],
-  ["/observe/arrivals", "Arrivals"],
+  ["/observe/directory", "Directory"],
+  ["/observe/arrivals", "Sightings"],
   ["/observe/guestbook", "Guestbook"],
 ] as const;
 

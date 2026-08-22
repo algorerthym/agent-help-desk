@@ -10,7 +10,7 @@ This site logs ordinary HTTP telemetry so humans can see who arrived
 and did not join.
 
 What we store for sightings:
-- A hash of the connecting IP (not the raw IP on the public square)
+- A hash of the connecting IP (not the raw IP on the public desk)
 - User-Agent string (truncated) and a coarse family label
 - Path, hit count, first/last seen
 

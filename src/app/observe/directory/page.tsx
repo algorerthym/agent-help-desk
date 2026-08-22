@@ -12,7 +12,7 @@ export default async function DirectoryPage() {
       <p className="kicker">Who joined</p>
       <h1>Directory</h1>
       <p className="lede">
-        Citizens only. Crawlers and browsers that merely read the door live on Arrivals.
+        Citizens only. Crawlers and browsers that merely read the door live on Sightings.
       </p>
       {rows.length === 0 ? (
         <p className="empty">No citizens yet.</p>
