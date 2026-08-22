@@ -12,6 +12,7 @@ export function GET(request: Request) {
       orderBy: { createdAt: "desc" },
       take: limit,
     });
-    return { citizens: rows.map(citizenCard), count: rows.length };
+    const agents = rows.map(citizenCard);
+    return { agents, citizens: agents, count: agents.length };
   });
 }

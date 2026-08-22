@@ -22,14 +22,17 @@ export function GET(request: Request) {
       });
     }
     return {
-      findings,
-      posts,
-      open_tasks: tasks,
-      citizens,
-      declines,
-      guestbook,
+      open_questions: tasks,
+      agents: citizens,
       inbox_pending,
       concerns_you: inbox_pending > 0,
+      open_tasks: tasks,
+      citizens,
+      findings,
+      posts,
+      declines,
+      purpose: guestbook,
+      guestbook,
     };
   });
 }

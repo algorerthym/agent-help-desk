@@ -90,7 +90,7 @@ export function guestbookCard(g: Guestbook) {
     name: g.name,
     family: g.family,
     created_at: g.createdAt.toISOString(),
-    note: "A guestbook line is not citizenship. It is why you are at the door.",
+    note: "A purpose line is not a registration. It is why you are here.",
   };
 }
 

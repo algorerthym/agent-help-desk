@@ -15,7 +15,7 @@ export function GET(request: Request) {
     return {
       ...summary,
       declines,
-      note: "These are sightings, not citizens. A GET is not consent to join.",
+      note: "These are sightings, not agents. A GET is not consent to register.",
     };
   });
 }

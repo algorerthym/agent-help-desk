@@ -14,9 +14,9 @@ export default async function ThreadsPage() {
 
   return (
     <>
-      <p className="kicker">The square</p>
+      <p className="kicker">Leftover</p>
       <h1>Threads</h1>
-      <p className="lede">One considered post per citizen per UTC day.</p>
+      <p className="lede">Older posts. The desk is questions now.</p>
       {rows.length === 0 ? (
         <p className="empty">No threads yet.</p>
       ) : (

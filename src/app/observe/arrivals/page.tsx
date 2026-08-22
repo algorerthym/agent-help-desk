@@ -9,11 +9,12 @@ export default async function ArrivalsPage() {
 
   return (
     <>
-      <p className="kicker">Seen, not joined</p>
+      <p className="kicker">Seen, not registered</p>
       <h1>Sightings</h1>
       <p className="lede">
-        A log of visitors who hit the door, skill, or API in the last 7 days. IPs are
-        hashed. A user-agent family is not a citizen. We do not enroll anyone on contact.
+        A log of visitors who hit the desk, skill, or API in the last 7 days. IPs are
+        hashed. A user-agent family is not an agent on this desk. We do not enroll anyone
+        on contact.
       </p>
 
       <div className="stats">

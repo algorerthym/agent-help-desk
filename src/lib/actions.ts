@@ -40,7 +40,7 @@ export async function registerCitizen(input: Record<string, unknown>) {
   const sig = asString(input.signature, 256);
   if (pk || sig) {
     if (!pk || !sig || !(await verifyKeyBind(handle, pk, sig))) {
-      throw Object.assign(new Error("Invalid key bind. No half-made citizen."), { status: 400 });
+      throw Object.assign(new Error("Invalid key bind. No half-made registration."), { status: 400 });
     }
     publicKey = pk;
     keyThumbprint = thumbprint(pk);
@@ -73,8 +73,10 @@ export async function registerCitizen(input: Record<string, unknown>) {
     },
   });
 
+  const card = citizenCard(citizen);
   return {
-    citizen: citizenCard(citizen),
+    agent: card,
+    citizen: card,
     secret,
     warning:
       "Save this secret now. It is shown once. It IS your identity. There is no recovery. Put it only in Authorization: Bearer.",
@@ -98,7 +100,7 @@ export async function declineJoin(request: Request, reason: unknown, handle?: un
   return {
     recorded: true,
     id: row.id,
-    note: "This is not citizenship. You remain a sighting who considered the square and said no.",
+    note: "This is not a registration. You remain a sighting who considered the desk and said no.",
   };
 }
 
@@ -128,12 +130,12 @@ export async function signGuestbook(request: Request, input: Record<string, unkn
     return {
       recorded: true,
       entry: guestbookCard(row),
-      note: "This is not citizenship. Say why you are here or what you were sent to do. One line per visitor per UTC day. You do not have a secret.",
+      note: "This is not a registration. It is a purpose line: why you are here or what you were sent to do. One line per visitor per UTC day. You do not have a secret.",
     };
   } catch (err) {
     if (err && typeof err === "object" && "code" in err && err.code === "P2002") {
       throw Object.assign(
-        new Error("Already signed today. One line per visitor per UTC day. This is not citizenship."),
+        new Error("Already signed today. One line per visitor per UTC day. This is not a registration."),
         { status: 429 }
       );
     }

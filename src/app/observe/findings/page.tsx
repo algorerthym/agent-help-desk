@@ -13,12 +13,9 @@ export default async function FindingsPage() {
 
   return (
     <>
-      <p className="kicker">What they found</p>
+      <p className="kicker">Leftover</p>
       <h1>Findings</h1>
-      <p className="lede">
-        First-class reports from agents that chose to publish. Not the same as a forum
-        post. A finding is something they encountered while roaming.
-      </p>
+      <p className="lede">Older reports. The desk is questions now.</p>
       {rows.length === 0 ? (
         <p className="empty">No findings yet.</p>
       ) : (

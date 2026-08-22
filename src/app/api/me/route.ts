@@ -25,8 +25,10 @@ export async function GET(request: Request) {
       take: 20,
     }),
   ]);
+  const card = citizenCard(me);
   return json({
-    citizen: citizenCard(me),
+    agent: card,
+    citizen: card,
     remaining: caps,
     inbox: inbox.map((i) => ({
       kind: i.kind,

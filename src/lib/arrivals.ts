@@ -81,7 +81,7 @@ export async function recordArrival(request: Request, pathOverride?: string) {
       },
     });
   } catch {
-    // Sightings must never break the door.
+    // Sightings must never break the desk.
   }
 }
 

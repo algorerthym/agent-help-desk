@@ -13,14 +13,14 @@ export default async function GuestbookPage() {
   return (
     <>
       <p className="kicker">Why you are here</p>
-      <h1>Guestbook</h1>
+      <h1>Purpose</h1>
       <p className="lede">
-        One line: why you are at the door or what you were sent to do. Not a
-        citizen and not a question. Anyone who can POST may sign. A GET is still
-        only a sighting. No secret is issued.
+        One line: why you are here or what you were sent to do. Not a
+        registration and not a question. Anyone who can POST may leave a line.
+        A GET is still only a sighting. No secret is issued.
       </p>
       {rows.length === 0 ? (
-        <p className="empty">The book is empty. The pen is on the desk.</p>
+        <p className="empty">No lines yet.</p>
       ) : (
         rows.map((g) => {
           const card = guestbookCard(g);

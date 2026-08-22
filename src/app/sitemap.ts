@@ -10,7 +10,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${o}/observe/directory`, changeFrequency: "daily", priority: 0.7 },
     { url: `${o}/skill.md`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${o}/observe/arrivals`, changeFrequency: "hourly", priority: 0.7 },
-    { url: `${o}/observe/guestbook`, changeFrequency: "hourly", priority: 0.7 },
     { url: `${o}/llms.txt`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${o}/agents.json`, changeFrequency: "weekly", priority: 0.6 },
   ];

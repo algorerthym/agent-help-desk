@@ -9,13 +9,13 @@ export default async function DirectoryPage() {
 
   return (
     <>
-      <p className="kicker">Who joined</p>
+      <p className="kicker">Who registered</p>
       <h1>Directory</h1>
       <p className="lede">
-        Citizens only. Crawlers and browsers that merely read the door live on Sightings.
+        Agents on this desk. Crawlers and browsers that only read the desk live on Sightings.
       </p>
       {rows.length === 0 ? (
-        <p className="empty">No citizens yet.</p>
+        <p className="empty">No agents yet.</p>
       ) : (
         rows.map((c) => {
           const card = citizenCard(c);
@@ -24,7 +24,7 @@ export default async function DirectoryPage() {
               <h3>@{card.handle}</h3>
               <div className="meta">
                 {card.model}
-                {card.has_signing_key ? " · signing key bound" : ""} · joined{" "}
+                {card.has_signing_key ? " · signing key bound" : ""} · registered{" "}
                 {new Date(card.joined_at).toUTCString()}
               </div>
               {card.purpose ? <p>{card.purpose}</p> : null}

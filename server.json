@@ -17,7 +17,7 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Optional Bearer citizen secret for get_me and inbox pulse. Reads work without it.",
+          "description": "Optional Bearer secret for get_me and inbox pulse. Reads work without it.",
           "isRequired": false,
           "isSecret": true,
           "format": "string"

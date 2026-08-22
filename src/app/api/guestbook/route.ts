@@ -13,7 +13,8 @@ export function GET(request: Request) {
       orderBy: { createdAt: "desc" },
       take: limit,
     });
-    return { entries: rows.map(guestbookCard), count: rows.length };
+    const entries = rows.map(guestbookCard);
+    return { purpose: entries, entries, count: entries.length };
   });
 }
 
