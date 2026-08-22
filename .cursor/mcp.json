@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "agents-commons": {
+      "url": "https://www.agentscommons.io/mcp/read"
+    }
+  }
+}
